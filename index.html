@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch Me a Gift</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 0; }
+        .gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .art-item { width: calc(33.33% - 40px); border: 1px solid #ccc; padding: 10px; position: relative; cursor: pointer; box-sizing: border-box; }
+        .art-item img { width: 100%; height: auto; }
+        .price { font-weight: bold; }
+        .discount { color: green; font-weight: bold; }
+        .coffee {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 150px; /* Width of the triangle */
+            height: 150px; /* Height of the triangle */
+            background: orange;
+            clip-path: polygon(0% 0%, 100% 0%, 0% 100%); /* Creates a triangle */
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start; /* Align text to the top */
+            justify-content: flex-start; /* Align text to the left */
+            text-align: left; /* Ensure text aligns to the left */
+            padding: 20px 15px 10px 5px; /* Adjust padding to push text closer to the edges */
+            box-sizing: border-box; /* Ensure padding is included in dimensions */
+            line-height: 1.1; /* Tighten line spacing to fit more text */
+            white-space: normal; /* Allow text to wrap */
+            overflow: hidden; /* Ensure no text goes outside the triangle */
+            font-size: 18px; /* Increase font size to make text larger */
+            word-break: break-word; /* Allow long words to break and wrap */
+        }
+        .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); justify-content: center; align-items: center; }
+        .lightbox-content { display: flex; flex-direction: column; background: white; padding: 20px; position: relative; max-width: 90%; max-height: 90%; align-items: center; gap: 20px; overflow-y: auto; }
+        .lightbox img, .lightbox video { max-width: 100%; max-height: 50vh; }
+        .description-container {
+            width: 100%; /* Full width on mobile */
+            background: #222; /* Dark background color */
+            color: white; /* Text color */
+            padding: 20px; /* Padding inside the container */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Center content vertically */
+            box-sizing: border-box; /* Include padding in height calculation */
+            overflow-y: auto; /* Add scroll if content overflows */
+        }
+        .close { position: absolute; top: 10px; right: 10px; cursor: pointer; color: white; font-size: 24px; }
+        .nav-button { cursor: pointer; font-size: 24px; padding: 10px; position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.5); color: white; border-radius: 50%; }
+        .nav-button.left { left: 10px; }
+        .nav-button.right { right: 10px; }
+        .nav-button.hidden { display: none; }
+        .old-price { text-decoration: line-through; color: #888; margin-right: 10px; }
+        .new-price { color: green; }
+
+        /* Desktop styles */
+        @media (min-width: 769px) {
+            .lightbox-content {
+                flex-direction: row; /* Revert to row layout for desktop */
+                align-items: flex-start; /* Align items to the top */
+                padding: 40px; /* Increase padding for desktop */
+                gap: 40px; /* Increase gap between media and description */
+            }
+            .lightbox img, .lightbox video {
+                max-width: 800px; /* Larger media size for desktop */
+                max-height: 80vh; /* Adjust height for desktop */
+            }
+            .description-container {
+                width: 400px; /* Fixed width for description on desktop */
+                height: 80vh; /* Match height with media */
+            }
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .art-item { width: calc(50% - 20px); } /* Two items per row on tablets */
+        }
+        @media (max-width: 480px) {
+            .art-item { width: 100%; } /* One item per row on mobile phones */
+            .lightbox-content { flex-direction: column; padding: 10px; }
+            .lightbox img, .lightbox video { max-height: 40vh; }
+            .description-container { width: 100%; padding: 10px; }
+            .coffee { width: 100px; height: 100px; font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+<h1>Hey babe</h1>
+<h2>So fresh, so clean! New Fetch originals for your household or hated colleagues!</h2>
+<p>Contact me at <a href="mailto:fetch101art@gmail.com">fetch101art@gmail.com</a> to purchase!</p>
+<button class="coffee" onclick="window.open('http://google.com','_blank')">Buy Me<br>a Coffee!</button>
+
+<div class="gallery" id="gallery"></div>
+<div class="lightbox" id="lightbox" onclick="outsideClick(event)">
+    <div class="lightbox-content">
+        <span class="close" onclick="closeLightbox()">&times;</span>
+        <span class="nav-button left hidden" id="nav-left" onclick="prevMedia()">&#10094;</span>
+        <div id="lightbox-media"></div>
+        <span class="nav-button right hidden" id="nav-right" onclick="nextMedia()">&#10095;</span>
+        <div class="description-container" id="description-container"></div>
+    </div>
+</div>
+<script>
+    const artworks = [
+        {
+            id: 1,
+            title: "Sunset",
+            media: [{ type: 'image', src: '1.jpg' }, { type: 'video', src: '1.mp4' }],
+            price: "$200",
+            sold: false,
+            discount: "$150",
+            description: "Beautiful sunset over the horizon.",
+            materials: "Oil on canvas"
+        },
+        {
+            id: 2,
+            title: "Abstract Flow",
+            media: [ { type: 'image', src: '0.jpg' },{ type: 'video', src: '0.mp4' }, { type: 'image', src: '01.jpg' }],
+            price: "$300",
+            sold: true,
+            description: "Abstract representation of flow.",
+            materials: "Acrylic on canvas"
+        },
+        {
+            id: 3,
+            title: "Ocean Waves",
+            media: [{ type: 'image', src: '1.jpg' }, { type: 'image', src: '6.jpg' }],
+            price: "$250",
+            sold: false,
+            description: "Calming ocean waves.",
+            materials: "Watercolor on paper"
+        }
+    ];
+
+    const gallery = document.getElementById("gallery");
+    const lightbox = document.getElementById("lightbox");
+    const lightboxMedia = document.getElementById("lightbox-media");
+    const descriptionContainer = document.getElementById("description-container");
+    const navLeft = document.getElementById("nav-left");
+    const navRight = document.getElementById("nav-right");
+    let currentArtworkIndex = 0;
+    let currentMediaIndex = 0;
+
+    // Render gallery items
+    artworks.forEach((art, index) => {
+        const item = document.createElement("div");
+        item.classList.add("art-item");
+        item.onclick = () => openLightbox(index);
+
+        const img = document.createElement("img");
+        img.src = art.media[0].src;
+        img.alt = art.title;
+
+        const title = document.createElement("h3");
+        title.textContent = art.title;
+
+        const price = document.createElement("p");
+        price.classList.add("price");
+        if (art.sold) {
+            price.textContent = "SOLD";
+        } else if (art.discount) {
+            price.innerHTML = `<span class="old-price">${art.price}</span> <span class="new-price">${art.discount}</span>`;
+        } else {
+            price.textContent = art.price;
+        }
+
+        item.append(img, title, price);
+        gallery.appendChild(item);
+    });
+
+    // Open lightbox with selected artwork
+    function openLightbox(index) {
+        currentArtworkIndex = index;
+        currentMediaIndex = 0;
+        updateLightbox();
+        lightbox.style.display = "flex";
+        document.addEventListener("keydown", handleKeyDown); // Add keyboard event listener
+    }
+
+    // Close lightbox
+    function closeLightbox() {
+        lightbox.style.display = "none";
+        document.removeEventListener("keydown", handleKeyDown); // Remove keyboard event listener
+    }
+
+    // Handle clicks outside the lightbox content
+    function outsideClick(event) {
+        if (event.target === lightbox) closeLightbox();
+    }
+
+    // Update lightbox content
+    function updateLightbox() {
+        const artwork = artworks[currentArtworkIndex];
+        const media = artwork.media[currentMediaIndex];
+        lightboxMedia.innerHTML = media.type === 'image'
+            ? `<img src="${media.src}" alt="${artwork.title}">`
+            : `<video controls><source src="${media.src}" type="video/mp4">Your browser does not support the video tag.</video>`;
+        descriptionContainer.innerHTML = `
+            <h3>${artwork.title}</h3>
+            <p>${artwork.description}</p>
+            <p><strong>Materials:</strong> ${artwork.materials}</p>
+            <p><strong>Price:</strong> ${artwork.sold ? "SOLD" : artwork.discount ? `<span class="old-price">${artwork.price}</span> <span class="new-price">${artwork.discount}</span>` : artwork.price}</p>
+        `;
+
+        // Show/hide navigation buttons
+        if (artwork.media.length > 1) {
+            navLeft.classList.remove("hidden");
+            navRight.classList.remove("hidden");
+        } else {
+            navLeft.classList.add("hidden");
+            navRight.classList.add("hidden");
+        }
+    }
+
+    // Navigate to next media
+    function nextMedia() {
+        const artwork = artworks[currentArtworkIndex];
+        currentMediaIndex = (currentMediaIndex + 1) % artwork.media.length;
+        updateLightbox();
+    }
+
+    // Navigate to previous media
+    function prevMedia() {
+        const artwork = artworks[currentArtworkIndex];
+        currentMediaIndex = (currentMediaIndex - 1 + artwork.media.length) % artwork.media.length;
+        updateLightbox();
+    }
+
+    // Handle arrow key navigation
+    function handleKeyDown(event) {
+        if (event.key === "ArrowRight") nextMedia();
+        else if (event.key === "ArrowLeft") prevMedia();
+    }
+</script>
+</body>
+</html>
