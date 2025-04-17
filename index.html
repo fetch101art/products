@@ -103,6 +103,21 @@
 <p>Contact me at <a href="mailto:fetch101art@gmail.com">fetch101art@gmail.com</a> to purchase!</p>
 <button class="coffee" onclick="window.open('https://buymeacoffee.com/fetch101art','_blank')">Buy Me<br>a Coffee!</button>
 <img src="paypal.png" alt="PayPal" class="paypal-icon">
+<div id="donate-button-container">
+<div id="donate-button"></div>
+<script src="https://www.paypalobjects.com/donate/sdk/donate-sdk.js" charset="UTF-8"></script>
+<script>
+PayPal.Donation.Button({
+env:'production',
+hosted_button_id:'ADNZ49NARKJHY',
+image: {
+src:'https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif',
+alt:'Donate with PayPal button',
+title:'PayPal - The safer, easier way to pay online!',
+}
+}).render('#donate-button');
+</script>
+</div>
 
 <div class="gallery" id="gallery"></div>
 <div class="lightbox" id="lightbox" onclick="outsideClick(event)">
