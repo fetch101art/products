@@ -56,6 +56,15 @@
         .nav-button.hidden { display: none; }
         .old-price { text-decoration: line-through; color: #888; margin-right: 10px; }
         .new-price { color: green; }
+        .paypal-icon {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 80px; /* optional, adjust size as needed */
+  height: auto;
+  z-index: 999; /* stay above other elements */
+}
+
 
         /* Desktop styles */
         @media (min-width: 769px) {
@@ -93,6 +102,7 @@
 <h3>Hand-drawn depictions of daily events. <br> High quality markers on 100% cotton paper. Not a print. 7x5, A6 size.</h3>
 <p>Contact me at <a href="mailto:fetch101art@gmail.com">fetch101art@gmail.com</a> to purchase!</p>
 <button class="coffee" onclick="window.open('https://buymeacoffee.com/fetch101art','_blank')">Buy Me<br>a Coffee!</button>
+<img src="paypal.png" alt="PayPal" class="paypal-icon">
 
 <div class="gallery" id="gallery"></div>
 <div class="lightbox" id="lightbox" onclick="outsideClick(event)">
@@ -109,7 +119,7 @@
         {
             id: 1,
             title: "Theater",
-            media: [{ type: 'image', src: 'Theater.png' }, { type: 'video', src: '1.mp4' }],
+            media: [{ type: 'image', src: 'Theater.png' }],
             price: "$200",
             sold: false,
             discount: "$150",
@@ -129,14 +139,14 @@
                {
             id: 3,
             title: "London",
-            media: [{ type: 'image', src: 'london.png' }, { type: 'image', src: '6.jpg' }],
+            media: [{ type: 'image', src: 'london.png' }, { type: 'image', src: 'london back.png' }],
             price: "$250",
             sold: false,
             description: "Calming ocean waves.",
             materials: "Watercolor on paper"
         },
                     {
-            id: 3,
+            id: 4,
             title: "Descendents",
             media: [{ type: 'image', src: 'Descendants-flower.jpg' }, { type: 'image', src: '6.jpg' }],
             price: "$250",
